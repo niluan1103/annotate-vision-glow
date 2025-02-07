@@ -4,7 +4,6 @@ import { FileUpload } from "@/components/FileUpload";
 import { ImageCard } from "@/components/ImageCard";
 import { parseYOLOFile } from "@/utils/yoloParser";
 import { toast } from "sonner";
-import type { YOLOAnnotation } from "@/utils/yoloParser";
 import type { ImageData } from "@/types/gallery";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -14,22 +13,26 @@ const Index = () => {
   const [images, setImages] = useState<ImageData[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const handleImageUpload = (file: File) => {
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please upload a valid image file");
-      return;
-    }
+  const handleImageUpload = (files: File[]) => {
+    const validFiles = files.filter(file => {
+      if (!file.type.startsWith("image/")) {
+        toast.error(`${file.name} is not a valid image file`);
+        return false;
+      }
+      return true;
+    });
 
-    const url = URL.createObjectURL(file);
-    const newImage: ImageData = {
+    if (validFiles.length === 0) return;
+
+    const newImages: ImageData[] = validFiles.map(file => ({
       id: crypto.randomUUID(),
-      imageUrl: url,
+      imageUrl: URL.createObjectURL(file),
       annotations: [],
       showAnnotations: true,
-    };
+    }));
     
-    setImages((prev) => [...prev, newImage]);
-    toast.success("Image uploaded successfully");
+    setImages(prev => [...prev, ...newImages]);
+    toast.success(`${validFiles.length} image${validFiles.length > 1 ? 's' : ''} uploaded successfully`);
   };
 
   const handleLabelUpload = async (file: File) => {
@@ -89,7 +92,7 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">
-                Image File
+                Image Files
               </label>
               <FileUpload
                 type="image"

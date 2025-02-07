@@ -4,7 +4,7 @@ import { Upload, Image as ImageIcon, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface FileUploadProps {
-  onImageUpload: (file: File) => void;
+  onImageUpload: (files: File[]) => void;
   onLabelUpload: (file: File) => void;
   accept: string;
   type: "image" | "label";
@@ -29,13 +29,12 @@ export const FileUpload = ({ onImageUpload, onLabelUpload, accept, type }: FileU
       e.stopPropagation();
       setIsDragging(false);
 
-      const file = e.dataTransfer.files?.[0];
-      if (!file) return;
-
       if (type === "image") {
-        onImageUpload(file);
+        const files = Array.from(e.dataTransfer.files);
+        onImageUpload(files);
       } else {
-        onLabelUpload(file);
+        const file = e.dataTransfer.files?.[0];
+        if (file) onLabelUpload(file);
       }
     },
     [onImageUpload, onLabelUpload, type]
@@ -43,13 +42,12 @@ export const FileUpload = ({ onImageUpload, onLabelUpload, accept, type }: FileU
 
   const handleFileInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-
       if (type === "image") {
-        onImageUpload(file);
+        const files = e.target.files ? Array.from(e.target.files) : [];
+        onImageUpload(files);
       } else {
-        onLabelUpload(file);
+        const file = e.target.files?.[0];
+        if (file) onLabelUpload(file);
       }
     },
     [onImageUpload, onLabelUpload, type]
@@ -58,7 +56,7 @@ export const FileUpload = ({ onImageUpload, onLabelUpload, accept, type }: FileU
   return (
     <div
       className={cn(
-        "relative w-full h-40 border-2 border-dashed rounded-lg transition-colors duration-200",
+        "relative w-full h-28 border-2 border-dashed rounded-lg transition-colors duration-200",
         isDragging
           ? "border-blue-400 bg-blue-50"
           : "border-gray-300 hover:border-gray-400 bg-gray-50"
@@ -72,16 +70,17 @@ export const FileUpload = ({ onImageUpload, onLabelUpload, accept, type }: FileU
         type="file"
         accept={accept}
         onChange={handleFileInput}
+        multiple={type === "image"}
         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
       />
       <div className="flex flex-col items-center justify-center h-full gap-2">
         {type === "image" ? (
-          <ImageIcon className="w-8 h-8 text-gray-400" />
+          <ImageIcon className="w-6 h-6 text-gray-400" />
         ) : (
-          <FileText className="w-8 h-8 text-gray-400" />
+          <FileText className="w-6 h-6 text-gray-400" />
         )}
-        <p className="text-sm text-gray-600">
-          Drop your {type} file here or click to browse
+        <p className="text-xs text-gray-600">
+          Drop your {type} {type === "image" ? "files" : "file"} here or click to browse
         </p>
       </div>
     </div>

@@ -5,7 +5,6 @@ import { ImagePreview } from "./ImagePreview";
 import { FileUpload } from "./FileUpload";
 import { toast } from "sonner";
 import type { ImageData } from "@/types/gallery";
-import type { YOLOAnnotation } from "@/utils/yoloParser";
 import { parseYOLOFile } from "@/utils/yoloParser";
 
 interface ImageCardProps {
@@ -39,6 +38,9 @@ export const ImageCard = ({ imageData, onUpdate }: ImageCardProps) => {
     onUpdate(imageData.id, { showAnnotations: !imageData.showAnnotations });
   };
 
+  // Extract filename from URL
+  const fileName = imageData.imageUrl.split("/").pop() || "Image";
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="relative">
@@ -49,21 +51,28 @@ export const ImageCard = ({ imageData, onUpdate }: ImageCardProps) => {
         <div className="absolute top-2 right-2 flex gap-2">
           <button
             onClick={toggleAnnotations}
-            className="p-2 bg-white/80 rounded-full hover:bg-white transition-colors"
+            className="p-1.5 bg-white/80 rounded-full hover:bg-white transition-colors"
+            title={imageData.showAnnotations ? "Hide annotations" : "Show annotations"}
           >
             {imageData.showAnnotations ? (
-              <EyeOff className="w-5 h-5" />
+              <EyeOff className="w-4 h-4" />
             ) : (
-              <Eye className="w-5 h-5" />
+              <Eye className="w-4 h-4" />
             )}
           </button>
           <button
             onClick={() => setShowLabelUpload(!showLabelUpload)}
-            className="p-2 bg-white/80 rounded-full hover:bg-white transition-colors"
+            className="p-1.5 bg-white/80 rounded-full hover:bg-white transition-colors"
+            title="Upload labels"
           >
-            <Upload className="w-5 h-5" />
+            <Upload className="w-4 h-4" />
           </button>
         </div>
+      </div>
+      <div className="px-3 py-2 border-t">
+        <p className="text-sm text-gray-600 truncate" title={fileName}>
+          {fileName}
+        </p>
       </div>
       {showLabelUpload && (
         <div className="p-4 border-t">
