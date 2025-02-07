@@ -11,9 +11,10 @@ export const parseYOLOAnnotation = (line: string): YOLOAnnotation | null => {
   const parts = line.trim().split(/\s+/);
   if (parts.length !== 5) return null;
 
-  const [classId, x, y, width, height] = parts.map(Number);
-  if (parts.some(isNaN)) return null;
+  const numbers = parts.map(Number);
+  if (numbers.some(isNaN)) return null;
 
+  const [classId, x, y, width, height] = numbers;
   return { classId, x, y, width, height };
 };
 
