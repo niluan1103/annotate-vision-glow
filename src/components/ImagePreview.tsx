@@ -9,10 +9,12 @@ interface ImagePreviewProps {
 
 export const ImagePreview = ({ imageUrl, annotations }: ImagePreviewProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -20,21 +22,24 @@ export const ImagePreview = ({ imageUrl, annotations }: ImagePreviewProps) => {
     const image = new Image();
     image.src = imageUrl;
     image.onload = () => {
-      canvas.width = image.width;
-      canvas.height = image.height;
+      // Set canvas size to match container width while maintaining aspect ratio
+      const containerWidth = container.clientWidth;
+      const scale = containerWidth / image.width;
+      canvas.width = containerWidth;
+      canvas.height = image.height * scale;
 
-      // Draw image
-      ctx.drawImage(image, 0, 0);
+      // Draw image scaled to fit container
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
       // Draw annotations
       ctx.strokeStyle = "#00ff00";
       ctx.lineWidth = 2;
 
       annotations.forEach((ann) => {
-        const x = ann.x * image.width;
-        const y = ann.y * image.height;
-        const width = ann.width * image.width;
-        const height = ann.height * image.height;
+        const x = ann.x * canvas.width;
+        const y = ann.y * canvas.height;
+        const width = ann.width * canvas.width;
+        const height = ann.height * canvas.height;
 
         // Calculate actual coordinates (YOLO format uses center coordinates)
         const left = x - width / 2;
@@ -46,10 +51,10 @@ export const ImagePreview = ({ imageUrl, annotations }: ImagePreviewProps) => {
   }, [imageUrl, annotations]);
 
   return (
-    <div className="w-full overflow-hidden rounded-lg shadow-lg">
+    <div ref={containerRef} className="w-full aspect-video bg-gray-100">
       <canvas
         ref={canvasRef}
-        className="max-w-full h-auto"
+        className="w-full h-full object-contain"
       />
     </div>
   );
