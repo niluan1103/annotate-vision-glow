@@ -27,6 +27,7 @@ const Index = () => {
     const newImages: ImageData[] = validFiles.map(file => ({
       id: crypto.randomUUID(),
       imageUrl: URL.createObjectURL(file),
+      originalFileName: file.name,  // Store the original filename
       annotations: [],
       showAnnotations: true,
     }));
