@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Eye, EyeOff, Upload } from "lucide-react";
+import { Eye, EyeOff, Upload, Trash2 } from "lucide-react";
 import { ImagePreview } from "./ImagePreview";
 import { FileUpload } from "./FileUpload";
 import { toast } from "sonner";
@@ -10,9 +10,10 @@ import { parseYOLOFile } from "@/utils/yoloParser";
 interface ImageCardProps {
   imageData: ImageData;
   onUpdate: (id: string, updates: Partial<ImageData>) => void;
+  onDelete: (id: string) => void;
 }
 
-export const ImageCard = ({ imageData, onUpdate }: ImageCardProps) => {
+export const ImageCard = ({ imageData, onUpdate, onDelete }: ImageCardProps) => {
   const [showLabelUpload, setShowLabelUpload] = useState(false);
 
   const handleLabelUpload = async (file: File) => {
@@ -66,6 +67,13 @@ export const ImageCard = ({ imageData, onUpdate }: ImageCardProps) => {
             title="Upload labels"
           >
             <Upload className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => onDelete(imageData.id)}
+            className="p-1.5 bg-white/80 rounded-full hover:bg-white transition-colors hover:bg-red-100"
+            title="Delete image"
+          >
+            <Trash2 className="w-4 h-4 text-red-500" />
           </button>
         </div>
       </div>

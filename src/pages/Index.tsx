@@ -72,6 +72,11 @@ const Index = () => {
     );
   };
 
+  const deleteImage = (id: string) => {
+    setImages((prev) => prev.filter((img) => img.id !== id));
+    toast.success("Image deleted successfully");
+  };
+
   const totalPages = Math.ceil(images.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const visibleImages = images.slice(startIndex, startIndex + ITEMS_PER_PAGE);
@@ -122,6 +127,7 @@ const Index = () => {
                     key={imageData.id}
                     imageData={imageData}
                     onUpdate={updateImage}
+                    onDelete={deleteImage}
                   />
                 ))}
               </div>
